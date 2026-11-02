@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#a31332">
+  <title>A Little Valentine Question</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --wine: #8d1834;
+      --red: #c62845;
+      --rose: #f7d8dd;
+      --paper: #fffaf8;
+      --ink: #3d2028;
+      --muted: #866c70;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 28px 16px;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 12% 18%, #f5c5ce 0, transparent 34%),
+        radial-gradient(ellipse at 88% 82%, #efbac5 0, transparent 35%),
+        #fbe9e9;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .card {
+      width: min(100%, 560px);
+      padding: clamp(26px, 7vw, 52px);
+      border: 1px solid rgba(141, 24, 52, .12);
+      border-radius: 24px;
+      background: var(--paper);
+      box-shadow: 0 22px 65px rgba(104, 24, 45, .16);
+      text-align: center;
+    }
+
+    .heart {
+      display: inline-grid;
+      width: 58px;
+      height: 58px;
+      place-items: center;
+      margin-bottom: 12px;
+      border-radius: 50%;
+      color: white;
+      background: var(--red);
+      font: 28px/1 Arial, sans-serif;
+      box-shadow: 0 7px 18px rgba(198, 40, 69, .25);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--red);
+      font: 700 11px/1.4 Arial, sans-serif;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--wine);
+      font-size: clamp(30px, 7vw, 42px);
+      font-weight: 500;
+      line-height: 1.15;
+    }
+
+    .intro, .hint {
+      color: var(--muted);
+      font: 15px/1.7 Arial, sans-serif;
+    }
+
+    .intro { margin: 14px auto 26px; }
+    .hint { margin: 17px 0 0; font-size: 13px; }
+
+    .question {
+      margin: 22px 0 18px;
+      color: var(--ink);
+      font-size: clamp(21px, 5vw, 26px);
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 11px;
+      margin-top: 22px;
+    }
+
+    button {
+      min-height: 48px;
+      padding: 12px 18px;
+      border: 1px solid #e8b8c1;
+      border-radius: 12px;
+      color: var(--wine);
+      background: white;
+      cursor: pointer;
+      font: 600 15px/1.25 Arial, sans-serif;
+      transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: #fff0f2;
+      box-shadow: 0 5px 14px rgba(141, 24, 52, .1);
+    }
+
+    button:focus-visible, textarea:focus-visible {
+      outline: 3px solid #e28294;
+      outline-offset: 3px;
+    }
+
+    button.primary {
+      width: 100%;
+      margin-top: 14px;
+      border-color: var(--red);
+      color: white;
+      background: var(--red);
+    }
+
+    button.primary:hover { background: var(--wine); }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 112px;
+      resize: vertical;
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid #dfb9bf;
+      border-radius: 12px;
+      color: var(--ink);
+      background: white;
+      font: 15px/1.5 Arial, sans-serif;
+    }
+
+    .progress {
+      height: 4px;
+      margin: 0 auto 25px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #f3e5e6;
+    }
+
+    .progress span {
+      display: block;
+      width: 10%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--red);
+      transition: width .25s ease;
+    }
+
+    .answers {
+      display: grid;
+      gap: 10px;
+      margin-top: 24px;
+      text-align: left;
+    }
+
+    .answer {
+      padding: 13px 15px;
+      border-left: 3px solid #d45a70;
+      border-radius: 5px 10px 10px 5px;
+      background: #fff0f1;
+      font: 14px/1.55 Arial, sans-serif;
+      overflow-wrap: anywhere;
+    }
+
+    .answer strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--wine);
+    }
+
+    .error {
+      margin: 8px 0 0;
+      color: #a31332;
+      font: 13px/1.4 Arial, sans-serif;
+      text-align: left;
+    }
+
+    [hidden] { display: none !important; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" aria-live="polite">
+    <div class="heart" aria-hidden="true">♥</div>
+    <p class="eyebrow">A little Valentine questionnaire</p>
+    <h1 id="title">A question from the heart</h1>
+    <p class="intro" id="intro">A few questions for someone special. Just answer honestly—your answers stay right here on this page.</p>
+    <button class="primary" id="start" type="button">Let's begin</button>
+    <section id="quiz" hidden>
+      <div class="progress" aria-label="Question progress"><span id="progress"></span></div>
+      <h2 class="question" id="question"></h2>
+      <div class="choices" id="choices"></div>
+      <form id="answer-form" hidden>
+        <label class="hint" id="answer-label" for="answer"></label>
+        <textarea id="answer" required maxlength="1000" placeholder="Type your answer here..."></textarea>
+        <p class="error" id="error" hidden>Please write an answer before continuing.</p>
+        <button class="primary" type="submit">Continue</button>
+      </form>
+    </section>
+    <section id="ending" hidden>
+      <p class="intro" id="ending-message"></p>
+      <div class="answers" id="answers"></div>
+      <button class="primary" id="restart" type="button">Start over</button>
+    </section>
+  </main>
+
+  <script>
+    const title = document.querySelector("#title");
+    const intro = document.querySelector("#intro");
+    const startButton = document.querySelector("#start");
+    const quiz = document.querySelector("#quiz");
+    const question = document.querySelector("#question");
+    const choices = document.querySelector("#choices");
+    const answerForm = document.querySelector("#answer-form");
+    const answerInput = document.querySelector("#answer");
+    const answerLabel = document.querySelector("#answer-label");
+    const error = document.querySelector("#error");
+    const progress = document.querySelector("#progress");
+    const ending = document.querySelector("#ending");
+    const endingMessage = document.querySelector("#ending-message");
+    const answersList = document.querySelector("#answers");
+    const restartButton = document.querySelector("#restart");
+    const responses = [];
+    let role = "";
+    let step = "";
+    let questionCount = 0;
+
+    const textPrompts = {
+      exBreakup: ["If you still love him, why did you break up with him?", "Tell him what led to the breakup."],
+      exStillLove: ["What do you still love about him?", "Share what's in your heart."],
+      exMessage: ["If you could tell him one thing now, what would it be?", "Share anything you wish he knew."],
+      exMovedOn: ["Why don't you love him anymore?", "Tell him honestly."],
+      friendFood: ["What's his favorite food?", "What food does he love?"],
+      friendQuality: ["What's one thing you admire about him?", "Tell him what makes him a good friend."],
+      friendWhy: ["What makes you unsure about being his friend?", "You can be honest."],
+      crushLike: ["What do you like about him?", "What first caught your attention?"],
+      crushReason: ["Why don't you like him?", "Share your reason honestly."],
+      girlfriendReason: ["What's one reason you truly love him?", "Tell him what makes your love special."]
+    };
+
+    function record(label, value) {
+      responses.push({ label, value });
+    }
+
+    function showQuestion(text, options) {
+      step = options.step;
+      question.textContent = text;
+      choices.replaceChildren();
+      answerForm.hidden = true;
+      choices.hidden = false;
+      questionCount += 1;
+      progress.style.width = `${Math.min(20 + questionCount * 18, 90)}%`;
+      options.choices.forEach((choice) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = choice.label;
+        button.addEventListener("click", choice.action);
+        choices.append(button);
+      });
+    }
+
+    function showText(key) {
+      step = key;
+      const [prompt, hint] = textPrompts[key];
+      question.textContent = prompt;
+      answerLabel.textContent = hint;
+      answerInput.value = "";
+      error.hidden = true;
+      choices.hidden = true;
+      answerForm.hidden = false;
+      questionCount += 1;
+      progress.style.width = `${Math.min(20 + questionCount * 18, 90)}%`;
+      answerInput.focus();
+    }
+
+    function askYesNo(prompt, yesAction, noAction) {
+      showQuestion(prompt, {
+        step,
+        choices: [
+          { label: "Yes", action: yesAction },
+          { label: "No", action: noAction }
+        ]
+      });
+    }
+
+    function finish(message) {
+      quiz.hidden = true;
+      ending.hidden = false;
+      title.textContent = "Thank you for sharing";
+      intro.hidden = true;
+      endingMessage.textContent = message;
+      progress.style.width = "100%";
+      answersList.replaceChildren();
+      responses.forEach(({ label, value }) => {
+        const item = document.createElement("div");
+        item.className = "answer";
+        const heading = document.createElement("strong");
+        heading.textContent = label;
+        item.append(heading, document.createTextNode(value));
+        answersList.append(item);
+      });
+    }
+
+    function begin() {
+      startButton.hidden = true;
+      intro.hidden = true;
+      quiz.hidden = false;
+      showQuestion("Who are you to this website's owner?", {
+        step: "role",
+        choices: ["Ex girlfriend", "Girlfriend", "Friend", "Crush"].map((name) => ({
+          label: name,
+          action: () => {
+            role = name;
+            record("Your relationship", name);
+            if (role === "Ex girlfriend") {
+              askYesNo("Do you still love him?", () => {
+                record("Do you still love him?", "Yes");
+                showText("exBreakup");
+              }, () => {
+                record("Do you still love him?", "No");
+                showText("exMovedOn");
+              });
+            } else if (role === "Friend") {
+              askYesNo("Are you truly his friend?", () => {
+                record("Are you truly his friend?", "Yes");
+                showText("friendFood");
+              }, () => {
+                record("Are you truly his friend?", "No");
+                showText("friendWhy");
+              });
+            } else if (role === "Crush") {
+              askYesNo("Do you like him?", () => {
+                record("Do you like him?", "Yes");
+                showText("crushLike");
+              }, () => {
+                record("Do you like him?", "No");
+                showText("crushReason");
+              });
+            } else {
+              askYesNo("Do you truly love me?", () => {
+                record("Do you truly love me?", "Yes");
+                showText("girlfriendReason");
+              }, () => {
+                record("Do you truly love me?", "No");
+                finish("Thanks for answering honestly. That's it—sending you a little love. ♥");
+              });
+            }
+          }
+        }))
+      });
+    }
+
+    answerForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const value = answerInput.value.trim();
+      if (!value) {
+        error.hidden = false;
+        answerInput.focus();
+        return;
+      }
+
+      const [prompt] = textPrompts[step];
+      record(prompt, value);
+
+      if (step === "exBreakup") {
+        showText("exStillLove");
+      } else if (step === "exStillLove") {
+        showText("exMessage");
+      } else if (step === "friendFood") {
+        showText("friendQuality");
+      } else {
+        finish("Thank you for sharing what's on your mind. Your answers are just for this moment. ♥");
+      }
+    });
+
+    function reset() {
+      responses.length = 0;
+      role = "";
+      step = "";
+      questionCount = 0;
+      title.textContent = "A question from the heart";
+      intro.hidden = false;
+      intro.textContent = "A few questions for someone special. Just answer honestly—your answers stay right here on this page.";
+      startButton.hidden = false;
+      quiz.hidden = true;
+      ending.hidden = true;
+      progress.style.width = "10%";
+    }
+
+    startButton.addEventListener("click", begin);
+    restartButton.addEventListener("click", reset);
+  </script>
+</body>
+</html>
